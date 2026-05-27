@@ -1,0 +1,213 @@
+% !TEX program = xelatex
+% Compile with XeLaTeX or LuaLaTeX when using font=arial or font=calibri.
+
+\documentclass[10pt,aspectratio=169]{beamer}
+
+\usetheme[
+  lang=en,
+  font=arial,
+  elevatedtitles=false,
+  serifmath=true,
+  tightlists=true
+]{OU}
+
+% ------------------------------------------------------------
+% OU theme options
+% ------------------------------------------------------------
+% lang=en|nl
+%   Selects English or Dutch labels and institute name.
+%
+% font=arial|calibri|none
+%   Selects the main presentation font. Use font=none if the document
+%   should not let the theme load or change fonts.
+%
+% elevatedtitles=true|false
+%   true  : moves frame titles closer to the top of the slide.
+%   false : gives frame titles more vertical space.
+%
+% serifmath=true|false
+%   true  : keeps mathematical expressions in the usual LaTeX serif style.
+%   false : uses the surrounding sans-serif style more strongly.
+%
+% tightlists=true|false
+%   true  : slightly reduces vertical spacing in standard itemize lists.
+%   false : keeps Beamer's default list spacing.
+%
+% Per-frame colour option:
+%   \begin{frame}[framecolor=OUAccent3]{Title}
+%   This changes the title, logo mark, and footer accent colour for one frame.
+%
+% Defined OU colours:
+%   OUPrimary, OUAccent2, OUAccent3, OUwarmgrey, OUgreenish,
+%   OUlightblue, OUblack, OUwhite
+%
+% Custom outline environment:
+%   \begin{ououtline}
+%     \item<1-> Main topic
+%     \itemdetails<1-> Short explanation
+%   \end{ououtline}
+%
+% Optional colour override:
+%   \begin{ououtline}[OUAccent3] ... \end{ououtline}
+% ------------------------------------------------------------
+
+% ------------------------------------------------------------
+% Common scientific-presentation packages
+% ------------------------------------------------------------
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{siunitx}
+
+\sisetup{
+  per-mode=reciprocal,
+  detect-all
+}
+
+% ------------------------------------------------------------
+% Title information
+% ------------------------------------------------------------
+\title{OU Beamer Template}
+\subtitle{A short example presentation}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+
+% ------------------------------------------------------------
+% Title page
+% ------------------------------------------------------------
+\begin{frame}[plain,noframenumbering]
+  \titlepage
+\end{frame}
+
+% ------------------------------------------------------------
+% Custom outline slide
+% ------------------------------------------------------------
+\section*{Outline}
+\begin{frame}{Outline}
+\setbeamercovered{transparent}
+
+\begin{ououtline}
+  \item<1-> Motivation
+  \itemdetails<1-> Why the question matters and what is being investigated.
+
+  \item<2-> Method
+  \itemdetails<2-> A compact description of the model, data, or experiment.
+
+  \item<3-> Results
+  \itemdetails<3-> The main quantitative findings and their interpretation.
+
+  \item<4-> Discussion
+  \itemdetails<4-> Limitations, assumptions, and possible extensions.
+\end{ououtline}
+
+\end{frame}
+
+% ------------------------------------------------------------
+\section{Motivation}
+\begin{frame}{Single-column text}
+This is a normal text slide. Use short paragraphs and avoid overloading the slide with detailed prose. Inline mathematics such as \(E=mc^2\) and quantities such as \qty{3.5}{MW} are typeset consistently.
+
+\medskip
+The OU theme defines the title area, logo mark, and footer automatically. Most slides can therefore remain very simple in their source code.
+\end{frame}
+
+% ------------------------------------------------------------
+\section{Method}
+\begin{frame}{Columns and short lists}
+\begin{columns}[T,onlytextwidth]
+  \column{0.52\textwidth}
+  \textbf{Left column}
+  \begin{itemize}
+    \item Use columns for comparisons.
+    \item Keep lists short.
+    \item Prefer readable slides over dense slides.
+  \end{itemize}
+
+  \column{0.42\textwidth}
+  \textbf{Right column}
+
+  \begin{tikzpicture}
+    \draw[draw=OUPrimary,fill=OUwarmgrey,line width=0.5pt]
+      (0,0) rectangle (4.8,2.8);
+    \node[align=center] at (2.4,1.4) {Figure or diagram\\placeholder};
+  \end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Equations and units}
+A short derivation is often clearer than a dense list of equations. The example below uses \texttt{siunitx} for units.
+
+%
+\begin{equation}
+\begin{aligned}
+P &= \tau \omega \\
+\tau &= F r \\
+P &= F r \omega
+\end{aligned}
+\end{equation}
+%
+
+For example, with \(F=\qty{50}{kN}\), \(r=\qty{2}{m}\), and \(\omega=\qty{6}{rad.s^{-1}}\), the resulting power is \(P=\qty{600}{kW}\).
+\end{frame}
+
+% ------------------------------------------------------------
+\section{Results}
+\begin{frame}{Compact table}
+\begin{table}
+\centering
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Case & Capacity & Comment \\
+\midrule
+Baseline & \qty{2.4}{GW} & reference case \\
+Scenario A & \qty{2.8}{GW} & moderate increase \\
+Scenario B & \qty{3.1}{GW} & strong increase \\
+\bottomrule
+\end{tabular}
+\caption{A compact table using \texttt{booktabs}.}
+\end{table}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}[framecolor=OUAccent3]{Changing the frame colour}
+This frame uses the per-frame option \texttt{framecolor=OUAccent3}. The accent colour returns to the default on the next frame.
+
+\begin{block}{Useful for section changes}
+Changing the frame colour can help mark exercises, interludes, case studies, or discussion slides without changing the whole presentation theme.
+\end{block}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Back to the default colour}
+The accent colour is again \texttt{OUPrimary}, because \texttt{framecolor} is local to the frame.
+
+\begin{exampleblock}{Example block}
+Blocks can be used for definitions, assumptions, or short conclusions.
+\end{exampleblock}
+\end{frame}
+
+% ------------------------------------------------------------
+\section{Conclusion}
+\begin{frame}{Take-away message}
+A useful final slide states the main result, the main limitation, and the next step. Keep this slide especially concise.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}
+\centering
+\LARGE Questions?
+\end{frame}
+
+% ------------------------------------------------------------
+\appendix
+\section{Backup}
+\begin{frame}{Backup slide}
+Backup slides can contain additional derivations, sensitivity analyses, or supporting figures.
+\end{frame}
+
+\end{document}
