@@ -6,7 +6,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{beamerthemeOU}[2026/05/27 v0.0.1 OU Beamer Theme Open Universiteit]
+\ProvidesPackage{beamerthemeOU}[2026/05/28 v0.0.2 OU Beamer Theme Open Universiteit]
 
 % --------------------------------------------------------------------------
 % Package purpose
@@ -17,6 +17,7 @@
 %   - language-dependent institute and page labels;
 %   - font selection for XeLaTeX/LuaLaTeX, with a pdfLaTeX fallback;
 %   - frame title, title page, footline, list, block, and caption styling;
+%   - footer short-title display enabled by default through footertitle=true;
 %   - a per-frame accent-colour option: [framecolor=<xcolor name>];
 %   - a custom outline list environment: ououtline;
 %   - embedded OU logo drawings at the end of the file.
@@ -29,7 +30,8 @@
 %     font=arial,
 %     elevatedtitles=false,
 %     serifmath=true,
-%     tightlists=true
+%     tightlists=true,
+%     footertitle=true
 %   ]{OU}
 %
 % Compile with XeLaTeX or LuaLaTeX for Arial/Calibri system fonts. With
@@ -82,6 +84,10 @@
 %   true  : slightly tighter standard itemize lists
 %   false : leave Beamer defaults mostly untouched
 %
+% footertitle:
+%   true  : show \insertshorttitle in the rounded footer bar (default)
+%   false : show only the page number in the rounded footer bar
+%
 % lang:
 %   en : English labels
 %   nl : Dutch labels
@@ -92,6 +98,7 @@
 \DeclareBoolOption[false]{elevatedtitles}
 \DeclareBoolOption[true]{serifmath}
 \DeclareBoolOption[true]{tightlists}
+\DeclareBoolOption[true]{footertitle}
 \DeclareStringOption[en]{lang}
 
 \ProcessKeyvalOptions*
@@ -333,9 +340,42 @@
 % The footline draws the rounded accent shape in the lower right, the small
 % OU icon in the upper right, and the current frame number. The page label is
 % language dependent.
+%
+% By default, the frame footer also shows \insertshorttitle in a separate
+% right-aligned white node. Use Beamer's optional
+% title argument to control the footer text:
+%
+%   \title[Short footer title]{Full presentation title}
+%
+% The title and page-number nodes are intentionally decoupled so that the
+% page number remains fixed independently of whether the footer title is shown.\newcommand*\OU@footertitletext{}
+
+\newcommand*\OUfootertitle[1]{%
+  \long\gdef\OU@footertitletext{#1}%
+}
+
+\let\OU@originaltitle\title
+
+\renewcommand{\title}{%
+  \@dblarg\OU@title%
+}
+
+\long\def\OU@title[#1]#2{%
+  \OU@originaltitle[#1]{#2}%
+  \long\gdef\OU@footertitletext{#1}%
+}
+
+\newcommand*\OU@insertfootertitle{%
+  \begingroup
+  \let\thanks\@gobble
+  \OU@footertitletext
+  \endgroup
+}
 
 \setbeamertemplate{footline}{%
   \begin{tikzpicture}[overlay,remember picture]
+
+    % Rounded footer bar.
     \fill[\OU@frameaccent]
       ($(current page.south east)+(0,0.93)$)
       --++ (-5.3,0)
@@ -343,13 +383,40 @@
       --++ (5.3,0)
       -- cycle;
 
+    % Small OU logo in the upper-right corner.
     \node[below right,inner sep=0pt]
       at ($(current page.north east)+(-0.75,-0.38)$)
       {\enlogonotext{\OU@frameaccent}};
 
-    \node[below right,OUwhite,inner sep=0pt,align=right]
-      at ($(current page.south east)+(-1.25,0.7)$)
-      {\fontsize{5.2pt}{6pt}\selectfont \OU@PageName~\insertframenumber\par};
+    % Optional footer title / short title.
+    \ifOU@footertitle
+      \node[
+        anchor=east,
+        text=OUwhite,
+        inner sep=0pt,
+        align=right,
+        text width=3.65cm
+      ]
+        at ($(current page.south east)+(-1.55,0.64)$)
+        {%
+          \fontsize{5.2pt}{6pt}\selectfont
+          \OU@footertitletext\par
+        };
+    \fi
+
+    % Page number. This node is deliberately independent of the footer title.
+    \node[
+      anchor=east,
+      text=OUwhite,
+      inner sep=0pt,
+      align=right
+    ]
+      at ($(current page.south east)+(-0.62,0.64)$)
+      {%
+        \fontsize{5.2pt}{6pt}\selectfont
+        \OU@PageName~\insertframenumber\par
+      };
+
   \end{tikzpicture}%
 }
 

@@ -8,30 +8,35 @@
   font=arial,
   elevatedtitles=false,
   serifmath=true,
-  tightlists=true
+  tightlists=true,
+  footertitle=true
 ]{OU}
 
 % ------------------------------------------------------------
 % OU theme options
 % ------------------------------------------------------------
-% lang=en|nl
+% lang=en|nl (default=en)
 %   Selects English or Dutch labels and institute name.
 %
-% font=arial|calibri|none
+% font=arial|calibri|none (default=arial)
 %   Selects the main presentation font. Use font=none if the document
 %   should not let the theme load or change fonts.
 %
-% elevatedtitles=true|false
+% elevatedtitles=true|false (default=false)
 %   true  : moves frame titles closer to the top of the slide.
 %   false : gives frame titles more vertical space.
 %
-% serifmath=true|false
+% serifmath=true|false (default=true)
 %   true  : keeps mathematical expressions in the usual LaTeX serif style.
 %   false : uses the surrounding sans-serif style more strongly.
 %
-% tightlists=true|false
+% tightlists=true|false (default=true)
 %   true  : slightly reduces vertical spacing in standard itemize lists.
 %   false : keeps Beamer's default list spacing.
+%
+% footertitle=true|false (default=true)
+%   true  : shows the short title in the footer.
+%   false : hides the short title in the footer.
 %
 % Per-frame colour option:
 %   \begin{frame}[framecolor=OUAccent3]{Title}
@@ -85,29 +90,25 @@
 % ------------------------------------------------------------
 % Custom outline slide
 % ------------------------------------------------------------
-\section*{Outline}
-\begin{frame}{Outline}
-\setbeamercovered{transparent}
+\begin{frame}[t]{Outline}
+\setbeamercovered{dynamic}
 
+\vspace{-0.5cm}
 \begin{ououtline}
-  \item<1-> Motivation
-  \itemdetails<1-> Why the question matters and what is being investigated.
-
-  \item<2-> Method
-  \itemdetails<2-> A compact description of the model, data, or experiment.
-
-  \item<3-> Results
-  \itemdetails<3-> The main quantitative findings and their interpretation.
-
-  \item<4-> Discussion
-  \itemdetails<4-> Limitations, assumptions, and possible extensions.
+  \item Motivation
+  \itemdetails Why the question matters and what is being investigated.
+  \item Method
+  \itemdetails A compact description of the model, data, or experiment.
+  \item Results
+  \itemdetails The main quantitative findings and their interpretation.
+  \item Discussion
+  \itemdetails Limitations, assumptions, and possible extensions.
 \end{ououtline}
-
 \end{frame}
 
 % ------------------------------------------------------------
 \section{Motivation}
-\begin{frame}{Single-column text}
+\begin{frame}[t]{Single-column text}
 This is a normal text slide. Use short paragraphs and avoid overloading the slide with detailed prose. Inline mathematics such as \(E=mc^2\) and quantities such as \qty{3.5}{MW} are typeset consistently.
 
 \medskip
@@ -116,7 +117,7 @@ The OU theme defines the title area, logo mark, and footer automatically. Most s
 
 % ------------------------------------------------------------
 \section{Method}
-\begin{frame}{Columns and short lists}
+\begin{frame}[t]{Columns and short lists}
 \begin{columns}[T,onlytextwidth]
   \column{0.52\textwidth}
   \textbf{Left column}
@@ -138,7 +139,7 @@ The OU theme defines the title area, logo mark, and footer automatically. Most s
 \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame}{Equations and units}
+\begin{frame}[t]{Equations and units}
 A short derivation is often clearer than a dense list of equations. The example below uses \texttt{siunitx} for units.
 
 %
@@ -156,7 +157,7 @@ For example, with \(F=\qty{50}{kN}\), \(r=\qty{2}{m}\), and \(\omega=\qty{6}{rad
 
 % ------------------------------------------------------------
 \section{Results}
-\begin{frame}{Compact table}
+\begin{frame}[t]{Compact table}
 \begin{table}
 \centering
 \small
@@ -183,7 +184,7 @@ Changing the frame colour can help mark exercises, interludes, case studies, or 
 \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame}{Back to the default colour}
+\begin{frame}[t]{Back to the default colour}
 The accent colour is again \texttt{OUPrimary}, because \texttt{framecolor} is local to the frame.
 
 \begin{exampleblock}{Example block}
@@ -193,7 +194,7 @@ Blocks can be used for definitions, assumptions, or short conclusions.
 
 % ------------------------------------------------------------
 \section{Conclusion}
-\begin{frame}{Take-away message}
+\begin{frame}[t]{Take-away message}
 A useful final slide states the main result, the main limitation, and the next step. Keep this slide especially concise.
 \end{frame}
 
@@ -206,7 +207,7 @@ A useful final slide states the main result, the main limitation, and the next s
 % ------------------------------------------------------------
 \appendix
 \section{Backup}
-\begin{frame}{Backup slide}
+\begin{frame}[t]{Backup slide}
 Backup slides can contain additional derivations, sensitivity analyses, or supporting figures.
 \end{frame}
 
