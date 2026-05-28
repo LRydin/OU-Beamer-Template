@@ -7,7 +7,7 @@ on:
     paths:
       - "beamer.tex"
       - "beamerthemeOU.sty"
-      - ".github/workflows/compilation-and-preview.yml"
+      - ".github/workflows/compilation-and-preview.yaml"
 
 permissions:
   contents: write
@@ -29,6 +29,7 @@ jobs:
             texlive-latex-recommended \
             texlive-latex-extra \
             texlive-fonts-recommended \
+            texlive-science \
             poppler-utils \
             fontconfig \
             fonts-crosextra-carlito
