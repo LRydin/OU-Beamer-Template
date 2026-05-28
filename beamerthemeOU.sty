@@ -6,7 +6,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{beamerthemeOU}[2026/05/28 v0.0.2 OU Beamer Theme Open Universiteit]
+\ProvidesPackage{beamerthemeOU}[2026/05/28 v0.0.3 OU Beamer Theme Open Universiteit]
 
 % --------------------------------------------------------------------------
 % Package purpose
@@ -85,7 +85,7 @@
 %   false : leave Beamer defaults mostly untouched
 %
 % footertitle:
-%   true  : show \insertshorttitle in the rounded footer bar (default)
+%   true  : show the plain short title in the rounded footer bar (default)
 %   false : show only the page number in the rounded footer bar
 %
 % lang:
@@ -281,10 +281,9 @@
 \setbeamertemplate{caption}[numbered]
 
 % --------------------------------------------------------------------------
-% 9. Per-frame accent colour
+% 9. Per-frame accent colour and footline options
 % --------------------------------------------------------------------------
-% The frame accent controls the frame title colour, the OU logo in the upper
-% right, and the rounded footer shape.
+% The frame accent controls the OU logo and the rounded footer shape.
 %
 % Usage:
 %
@@ -292,21 +291,60 @@
 %     ...
 %   \end{frame}
 %
-% The accent colour is reset at the start of every frame, so the option affects
-% only the frame on which it is used.
+% The default footline is placed on the lower right. Two per-frame options
+% modify this behaviour:
+%
+%   \begin{frame}[leftfootline]{Mirrored footer}
+%     ...
+%   \end{frame}
+%
+%   \begin{frame}[nofootline]{No bottom footer}
+%     ...
+%   \end{frame}
+%
+% The nofootline option removes the bottom rounded bar, title, and page number,
+% but deliberately keeps the OU logo. If leftfootline and nofootline are both
+% used, the logo is mirrored to the upper-left position and the bottom footer is
+% suppressed.
+%
+% These per-frame options are reset at the start of every frame, so they do not
+% affect subsequent frames.
 
 \newcommand*\OU@frameaccentdefault{OUPrimary}
 \def\OU@frameaccent{\OU@frameaccentdefault}
+
+\newif\ifOU@leftfootline
+\newif\ifOU@nofootline
+\OU@leftfootlinefalse
+\OU@nofootlinefalse
 
 \define@key{beamerframe}{framecolor}{%
   \def\OU@frameaccent{#1}%
 }
 
+\define@key{beamerframe}{leftfootline}[true]{%
+  \ifdefstring{#1}{false}{%
+    \OU@leftfootlinefalse
+  }{%
+    \OU@leftfootlinetrue
+  }%
+}
+
+\define@key{beamerframe}{nofootline}[true]{%
+  \ifdefstring{#1}{false}{%
+    \OU@nofootlinefalse
+  }{%
+    \OU@nofootlinetrue
+  }%
+}
+
 \AtBeginDocument{%
   \pretocmd{\beamer@@@@frame}{%
     \def\OU@frameaccent{\OU@frameaccentdefault}%
+    \OU@leftfootlinefalse
+    \OU@nofootlinefalse
   }{}{%
-    \PackageWarning{beamerthemeOU}{Could not patch Beamer frame initialisation; framecolor may persist across frames}%
+    \PackageWarning{beamerthemeOU}{Could not patch Beamer frame initialisation; frame options may persist across frames}%
   }%
 }
 
@@ -337,18 +375,27 @@
 % --------------------------------------------------------------------------
 % 11. Footline template
 % --------------------------------------------------------------------------
-% The footline draws the rounded accent shape in the lower right, the small
-% OU icon in the upper right, and the current frame number. The page label is
-% language dependent.
+% The footline consists of two independent layers:
+%   - the OU logo in the upper corner;
+%   - the bottom rounded footer bar with the optional short title and page
+%     number.
 %
-% By default, the frame footer also shows \insertshorttitle in a separate
-% right-aligned white node. Use Beamer's optional
-% title argument to control the footer text:
+% By default, these elements are drawn on the right-hand side. The per-frame
+% option [leftfootline] mirrors the layout to the left-hand side. The per-frame
+% option [nofootline] suppresses only the bottom footer bar and its text, while
+% keeping the OU logo visible.
+%
+% Footer title handling avoids Beamer's linked \insertshorttitle machinery.
+% Instead, the theme stores a plain copy of the optional short title supplied
+% with:
 %
 %   \title[Short footer title]{Full presentation title}
 %
-% The title and page-number nodes are intentionally decoupled so that the
-% page number remains fixed independently of whether the footer title is shown.\newcommand*\OU@footertitletext{}
+% The footer title can also be overridden manually:
+%
+%   \OUfootertitle{Manual footer title}
+
+\newcommand*\OU@footertitletext{}
 
 \newcommand*\OUfootertitle[1]{%
   \long\gdef\OU@footertitletext{#1}%
@@ -372,55 +419,127 @@
   \endgroup
 }
 
-\setbeamertemplate{footline}{%
-  \begin{tikzpicture}[overlay,remember picture]
+% Right-hand layout: default.
+\newcommand*\OU@drawrightlogo{%
+  \node[below right,inner sep=0pt]
+    at ($(current page.north east)+(-0.75,-0.38)$)
+    {\enlogonotext{\OU@frameaccent}};%
+}
 
-    % Rounded footer bar.
-    \fill[\OU@frameaccent]
-      ($(current page.south east)+(0,0.93)$)
-      --++ (-5.3,0)
-      arc[start angle=90,end angle=270,radius=0.29]
-      --++ (5.3,0)
-      -- cycle;
+\newcommand*\OU@drawrightfooterbar{%
+  \fill[\OU@frameaccent]
+    ($(current page.south east)+(0,0.93)$)
+    --++ (-5.3,0)
+    arc[start angle=90,end angle=270,radius=0.29]
+    --++ (5.3,0)
+    -- cycle;%
+}
 
-    % Small OU logo in the upper-right corner.
-    \node[below right,inner sep=0pt]
-      at ($(current page.north east)+(-0.75,-0.38)$)
-      {\enlogonotext{\OU@frameaccent}};
-
-    % Optional footer title / short title.
-    \ifOU@footertitle
-      \node[
-        anchor=east,
-        text=OUwhite,
-        inner sep=0pt,
-        align=right,
-        text width=3.65cm
-      ]
-        at ($(current page.south east)+(-1.55,0.64)$)
-        {%
-          \fontsize{5.2pt}{6pt}\selectfont
-          \OU@footertitletext\par
-        };
-    \fi
-
-    % Page number. This node is deliberately independent of the footer title.
+\newcommand*\OU@drawrightfootertext{%
+  \ifOU@footertitle
     \node[
       anchor=east,
       text=OUwhite,
       inner sep=0pt,
-      align=right
+      align=right,
+      text width=3.65cm
     ]
-      at ($(current page.south east)+(-0.62,0.64)$)
+      at ($(current page.south east)+(-1.55,0.64)$)
       {%
         \fontsize{5.2pt}{6pt}\selectfont
-        \OU@PageName~\insertframenumber\par
+        \OU@insertfootertitle\par
       };
+  \fi
+  \node[
+    anchor=east,
+    text=OUwhite,
+    inner sep=0pt,
+    align=right
+  ]
+    at ($(current page.south east)+(-0.62,0.64)$)
+    {%
+      \fontsize{5.2pt}{6pt}\selectfont
+      \OU@PageName~\insertframenumber\par
+    };%
+}
 
+\newcommand*\OU@drawrightfootline{%
+  \OU@drawrightlogo
+  \ifOU@nofootline
+    % Keep only the logo.
+  \else
+    \OU@drawrightfooterbar
+    \OU@drawrightfootertext
+  \fi
+}
+
+% Left-hand layout: mirror of the default.
+\newcommand*\OU@drawleftlogo{%
+  \node[below left,inner sep=0pt]
+    at ($(current page.north west)+(0.75,-0.38)$)
+    {\enlogonotext{\OU@frameaccent}};%
+}
+
+\newcommand*\OU@drawleftfooterbar{%
+  \fill[\OU@frameaccent]
+    ($(current page.south west)+(0,0.93)$)
+    --++ (5.3,0)
+    arc[start angle=90,end angle=-90,radius=0.29]
+    --++ (-5.3,0)
+    -- cycle;%
+}
+
+\newcommand*\OU@drawleftfootertext{%
+  \ifOU@footertitle
+    \node[
+      anchor=west,
+      text=OUwhite,
+      inner sep=0pt,
+      align=left,
+      text width=3.65cm
+    ]
+      at ($(current page.south west)+(1.55,0.64)$)
+      {%
+        \fontsize{5.2pt}{6pt}\selectfont
+        \OU@insertfootertitle\par
+      };
+  \fi
+  \node[
+    anchor=west,
+    text=OUwhite,
+    inner sep=0pt,
+    align=left
+  ]
+    at ($(current page.south west)+(0.62,0.64)$)
+    {%
+      \fontsize{5.2pt}{6pt}\selectfont
+      \OU@PageName~\insertframenumber\par
+    };%
+}
+
+\newcommand*\OU@drawleftfootline{%
+  \OU@drawrightlogo
+  \ifOU@nofootline
+    % Keep only the logo.
+  \else
+    \OU@drawleftfooterbar
+    \OU@drawleftfootertext
+  \fi
+}
+
+\setbeamertemplate{footline}{%
+  \begin{tikzpicture}[overlay,remember picture]
+    \ifOU@leftfootline
+      \OU@drawleftfootline
+    \else
+      \OU@drawrightfootline
+    \fi
   \end{tikzpicture}%
 }
 
 % Reserve vertical room for the custom footline.
+% The space is intentionally kept also for [nofootline], so the slide content
+% does not shift when toggling the footer visibility on individual frames.
 \addtobeamertemplate{footline}{}{\vspace{0.75cm}}
 
 % --------------------------------------------------------------------------

@@ -42,6 +42,12 @@
 %   \begin{frame}[framecolor=OUAccent3]{Title}
 %   This changes the title, logo mark, and footer accent colour for one frame.
 %
+%
+% Per-frame layout options:
+%   rightfootline : moves the logo mark and footer content to the right side of the frame (default).
+%   leftfootline  : moves the footer content to the left side of the frame.
+%   nofootline    : removes the footer content from the frame.
+
 % Defined OU colours:
 %   OUPrimary, OUAccent2, OUAccent3, OUwarmgrey, OUgreenish,
 %   OUlightblue, OUblack, OUwhite
@@ -190,6 +196,16 @@ The accent colour is again \texttt{OUPrimary}, because \texttt{framecolor} is lo
 \begin{exampleblock}{Example block}
 Blocks can be used for definitions, assumptions, or short conclusions.
 \end{exampleblock}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}[t,leftfootline]{Using leftfootline}
+This frame uses the \texttt{leftfootline} option to move the footer content to the left side of the frame.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}[t,nofootline]{Using no footline}
+This frame uses the \texttt{nofootline} option to remove the footer content from the frame.
 \end{frame}
 
 % ------------------------------------------------------------

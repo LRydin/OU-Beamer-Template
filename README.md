@@ -13,4 +13,6 @@ LaTeX Beamer Template for the Open University of the Netherlands
   <img src="slides/beamer-09.png" width=350px alt="beamer-09">
   <img src="slides/beamer-10.png" width=350px alt="beamer-10">
   <img src="slides/beamer-11.png" width=350px alt="beamer-11">
+  <img src="slides/beamer-12.png" width=350px alt="beamer-12">
+  <img src="slides/beamer-13.png" width=350px alt="beamer-13">
 </picture>
