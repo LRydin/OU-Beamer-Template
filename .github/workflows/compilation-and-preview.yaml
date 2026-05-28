@@ -1,0 +1,56 @@
+name: Build Beamer slides
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "beamer.tex"
+      - "beamerthemeOU.sty"
+      - ".github/workflows/build-slides.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build-slides:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install TeX Live and Poppler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            latexmk \
+            texlive-xetex \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            poppler-utils
+
+      - name: Compile Beamer document
+        run: |
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error beamer.tex
+
+      - name: Generate PNG slides
+        run: |
+          rm -rf slides
+          mkdir -p slides
+          pdftoppm -png beamer.pdf slides/beamer
+
+      - name: Commit generated slide images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A slides
+
+          if git diff --cached --quiet; then
+            echo "No slide changes to commit."
+          else
+            git commit -m "Update generated slide images [skip ci]"
+            git push
+          fi
