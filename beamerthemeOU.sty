@@ -169,9 +169,14 @@
 % --------------------------------------------------------------------------
 % 6. Font setup
 % --------------------------------------------------------------------------
-% Under XeLaTeX/LuaLaTeX, fontspec is used if font is arial or calibri.
-% Under pdfLaTeX, Helvetica is used as a fallback unless font=none.
-% With font=none, no font package is loaded by the theme.
+% Under XeLaTeX/LuaLaTeX, fontspec is used if font is not set to none.
+% The default is Calibri, with Carlito as an open fallback.
+%
+% font:
+%   calibri : use Calibri if available; otherwise Carlito
+%   carlito : use Carlito directly
+%   arial   : use Arial if available; otherwise Carlito
+%   none    : do not alter document fonts
 
 \newif\ifOU@usefontspec
 \OU@usefontspecfalse
@@ -189,12 +194,37 @@
 
 \ifOU@usefontspec
   \RequirePackage{fontspec}
+
+  \newcommand*\OU@setfontwithfallback[2]{%
+    \IfFontExistsTF{#1}{%
+      \setsansfont{#1}%
+      \setmainfont{#1}%
+    }{%
+      \PackageWarning{beamerthemeOU}{Font '#1' not found. Falling back to '#2'}%
+      \IfFontExistsTF{#2}{%
+        \setsansfont{#2}%
+        \setmainfont{#2}%
+      }{%
+        \PackageWarning{beamerthemeOU}{Fallback font '#2' not found. Falling back to TeX Gyre Heros}%
+        \setsansfont{TeX Gyre Heros}%
+        \setmainfont{TeX Gyre Heros}%
+      }%
+    }%
+  }
+
   \ifdefstring{\OU@font}{calibri}{%
-    \setsansfont{Calibri}
-    \setmainfont{Calibri}
+    \OU@setfontwithfallback{Calibri}{Carlito}%
   }{%
-    \setsansfont{Arial}
-    \setmainfont{Arial}
+    \ifdefstring{\OU@font}{carlito}{%
+      \OU@setfontwithfallback{Carlito}{TeX Gyre Heros}%
+    }{%
+      \ifdefstring{\OU@font}{arial}{%
+        \OU@setfontwithfallback{Arial}{Carlito}%
+      }{%
+        \PackageWarning{beamerthemeOU}{Unknown font option '\OU@font'. Falling back to Calibri/Carlito}%
+        \OU@setfontwithfallback{Calibri}{Carlito}%
+      }%
+    }%
   }%
 \else
   \ifdefstring{\OU@font}{none}{%
@@ -203,10 +233,6 @@
     \RequirePackage[scaled=0.92]{helvet}
     \renewcommand{\familydefault}{\sfdefault}
   }%
-\fi
-
-\ifOU@serifmath
-  \usefonttheme[onlymath]{serif}
 \fi
 
 % --------------------------------------------------------------------------

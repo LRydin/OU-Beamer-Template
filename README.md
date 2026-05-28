@@ -1,6 +1,26 @@
 # OU-Beamer-Template
 LaTeX Beamer Template for the Open University of the Netherlands
 
+## OU fonts
+The Open University of the Netherlands uses as standart `Calibri` and `Calibri Light` for presentations. These are proprietary fonts. In a linux system, you can install an open alternative to `Calibri`, `Carlito`, with
+
+```shell
+sudo apt update
+sudo apt install fonts-crosextra-carlito fontconfig
+sudo fc-cache -f
+fc-match Carlito
+```
+
+and `Arial` with
+```shell
+sudo add-apt-repository multiverse
+sudo apt update
+sudo apt install ttf-mscorefonts-installer fontconfig
+sudo fc-cache -f
+fc-match Arial
+```
+
+## Preview
 <picture>
   <img src="slides/beamer-01.png" width=350px alt="beamer-01">
   <img src="slides/beamer-02.png" width=350px alt="beamer-02">

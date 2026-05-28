@@ -29,7 +29,12 @@ jobs:
             texlive-latex-recommended \
             texlive-latex-extra \
             texlive-fonts-recommended \
-            poppler-utils
+            poppler-utils \
+            fontconfig \
+            fonts-crosextra-carlito
+
+          sudo fc-cache -f
+          fc-match Carlito
 
       - name: Compile Beamer document
         run: |
