@@ -7,7 +7,7 @@ on:
     paths:
       - "beamer.tex"
       - "beamerthemeOU.sty"
-      - ".github/workflows/build-slides.yml"
+      - ".github/workflows/compilation-and-preview.yml"
 
 permissions:
   contents: write
