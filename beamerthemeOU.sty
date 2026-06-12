@@ -6,7 +6,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{beamerthemeOU}[2026/05/28 v0.0.3 OU Beamer Theme Open Universiteit]
+\ProvidesPackage{beamerthemeOU}[2026/06/12 v0.0.4 OU Beamer Theme Open Universiteit]
 
 % --------------------------------------------------------------------------
 % Package purpose
@@ -141,12 +141,12 @@
 \definecolor{OUblack}{HTML}{000000}
 \definecolor{OUwhite}{HTML}{FFFFFF}
 
-\definecolor{OUPrimary}{RGB}{226,0,26}
+\definecolor{OUPrimary}{HTML}{E2001A}
 \definecolor{OUAccent2}{HTML}{E7E3D1}
 \definecolor{OUAccent3}{HTML}{5967A6}
 \definecolor{OUwarmgrey}{HTML}{E8E3DC}
 \definecolor{OUgreenish}{HTML}{A1B7AC}
-\definecolor{OUlightblue}{RGB}{205,222,0}
+\definecolor{OUlightblue}{HTML}{ACC5E0}
 
 % --------------------------------------------------------------------------
 % 5. Hyperlinks
@@ -307,9 +307,9 @@
 \setbeamertemplate{caption}[numbered]
 
 % --------------------------------------------------------------------------
-% 9. Per-frame accent colour and footline options
+% 9. Per-frame accent colour, footer, and logo options
 % --------------------------------------------------------------------------
-% The frame accent controls the OU logo and the rounded footer shape.
+% The frame accent controls the OU logo colour and the rounded footer shape.
 %
 % Usage:
 %
@@ -317,32 +317,43 @@
 %     ...
 %   \end{frame}
 %
-% The default footline is placed on the lower right. Two per-frame options
-% modify this behaviour:
+% Footer and logo placement are independent per-frame options. The defaults are:
+%   - rightfootline : bottom rounded footer bar on the lower right;
+%   - leftlogo      : OU logo in the upper left.
 %
-%   \begin{frame}[leftfootline]{Mirrored footer}
-%     ...
-%   \end{frame}
+% Footer options:
 %
-%   \begin{frame}[nofootline]{No bottom footer}
-%     ...
-%   \end{frame}
+%   \begin{frame}[leftfootline]{Footer on the left}
+%   \begin{frame}[rightfootline]{Footer on the right}
+%   \begin{frame}[nofootline]{No bottom footer bar}
 %
-% The nofootline option removes the bottom rounded bar, title, and page number,
-% but deliberately keeps the OU logo. If leftfootline and nofootline are both
-% used, the logo is mirrored to the upper-left position and the bottom footer is
-% suppressed.
+% Logo options:
 %
-% These per-frame options are reset at the start of every frame, so they do not
+%   \begin{frame}[leftlogo]{Logo on the left}
+%   \begin{frame}[rightlogo]{Logo on the right}
+%   \begin{frame}[nologo]{No logo}
+%
+% These options can be combined. For example:
+%
+%   \begin{frame}[leftfootline,rightlogo]{Mirrored layout}
+%   \begin{frame}[nofootline,leftlogo]{Only the upper-left logo}
+%   \begin{frame}[nofootline,nologo]{No footer and no logo}
+%
+% All per-frame options are reset at the start of each frame, so they do not
 % affect subsequent frames.
 
 \newcommand*\OU@frameaccentdefault{OUPrimary}
 \def\OU@frameaccent{\OU@frameaccentdefault}
 
-\newif\ifOU@leftfootline
+% The placement macros store the active per-frame side.
+% Valid values are 'left' and 'right'.
+\def\OU@footlineside{right}
+\def\OU@logoside{left}
+
 \newif\ifOU@nofootline
-\OU@leftfootlinefalse
+\newif\ifOU@nologo
 \OU@nofootlinefalse
+\OU@nologofalse
 
 \define@key{beamerframe}{framecolor}{%
   \def\OU@frameaccent{#1}%
@@ -350,9 +361,17 @@
 
 \define@key{beamerframe}{leftfootline}[true]{%
   \ifdefstring{#1}{false}{%
-    \OU@leftfootlinefalse
+    \def\OU@footlineside{right}%
   }{%
-    \OU@leftfootlinetrue
+    \def\OU@footlineside{left}%
+  }%
+}
+
+\define@key{beamerframe}{rightfootline}[true]{%
+  \ifdefstring{#1}{false}{%
+    \def\OU@footlineside{left}%
+  }{%
+    \def\OU@footlineside{right}%
   }%
 }
 
@@ -364,11 +383,39 @@
   }%
 }
 
+\define@key{beamerframe}{leftlogo}[true]{%
+  \ifdefstring{#1}{false}{%
+    \def\OU@logoside{right}%
+  }{%
+    \def\OU@logoside{left}%
+    \OU@nologofalse
+  }%
+}
+
+\define@key{beamerframe}{rightlogo}[true]{%
+  \ifdefstring{#1}{false}{%
+    \def\OU@logoside{left}%
+  }{%
+    \def\OU@logoside{right}%
+    \OU@nologofalse
+  }%
+}
+
+\define@key{beamerframe}{nologo}[true]{%
+  \ifdefstring{#1}{false}{%
+    \OU@nologofalse
+  }{%
+    \OU@nologotrue
+  }%
+}
+
 \AtBeginDocument{%
   \pretocmd{\beamer@@@@frame}{%
     \def\OU@frameaccent{\OU@frameaccentdefault}%
-    \OU@leftfootlinefalse
+    \def\OU@footlineside{right}%
+    \def\OU@logoside{left}%
     \OU@nofootlinefalse
+    \OU@nologofalse
   }{}{%
     \PackageWarning{beamerthemeOU}{Could not patch Beamer frame initialisation; frame options may persist across frames}%
   }%
@@ -399,21 +446,15 @@
 }
 
 % --------------------------------------------------------------------------
-% 11. Footline template
+% 11. Footline and logo template
 % --------------------------------------------------------------------------
-% The footline consists of two independent layers:
-%   - the OU logo in the upper corner;
-%   - the bottom rounded footer bar with the optional short title and page
-%     number.
+% The template draws two independent layers:
+%   - the upper OU logo, controlled by leftlogo/rightlogo/nologo;
+%   - the lower footer bar, controlled by leftfootline/rightfootline/nofootline.
 %
-% By default, these elements are drawn on the right-hand side. The per-frame
-% option [leftfootline] mirrors the layout to the left-hand side. The per-frame
-% option [nofootline] suppresses only the bottom footer bar and its text, while
-% keeping the OU logo visible.
-%
-% Footer title handling avoids Beamer's linked \insertshorttitle machinery.
-% Instead, the theme stores a plain copy of the optional short title supplied
-% with:
+% The lower footer bar contains the optional short title and page number.
+% The footer title avoids Beamer's linked \insertshorttitle machinery. Instead,
+% the theme stores a plain copy of the optional short title supplied with:
 %
 %   \title[Short footer title]{Full presentation title}
 %
@@ -445,12 +486,33 @@
   \endgroup
 }
 
-% Right-hand layout: default.
+% --- Logo layer ------------------------------------------------------------
+
+\newcommand*\OU@drawleftlogo{%
+  \node[below left,inner sep=0pt]
+    at ($(current page.north west)+(0.75,-0.38)$)
+    {\enlogonotext{\OU@frameaccent}};%
+}
+
 \newcommand*\OU@drawrightlogo{%
   \node[below right,inner sep=0pt]
     at ($(current page.north east)+(-0.75,-0.38)$)
     {\enlogonotext{\OU@frameaccent}};%
 }
+
+\newcommand*\OU@drawlogo{%
+  \ifOU@nologo
+    % Logo deliberately suppressed.
+  \else
+    \ifdefstring{\OU@logoside}{left}{%
+      \OU@drawleftlogo
+    }{%
+      \OU@drawrightlogo
+    }%
+  \fi
+}
+
+% --- Footer bar layer ------------------------------------------------------
 
 \newcommand*\OU@drawrightfooterbar{%
   \fill[\OU@frameaccent]
@@ -458,6 +520,15 @@
     --++ (-5.3,0)
     arc[start angle=90,end angle=270,radius=0.29]
     --++ (5.3,0)
+    -- cycle;%
+}
+
+\newcommand*\OU@drawleftfooterbar{%
+  \fill[\OU@frameaccent]
+    ($(current page.south west)+(0,0.93)$)
+    --++ (5.3,0)
+    arc[start angle=90,end angle=-90,radius=0.29]
+    --++ (-5.3,0)
     -- cycle;%
 }
 
@@ -489,32 +560,6 @@
     };%
 }
 
-\newcommand*\OU@drawrightfootline{%
-  \OU@drawrightlogo
-  \ifOU@nofootline
-    % Keep only the logo.
-  \else
-    \OU@drawrightfooterbar
-    \OU@drawrightfootertext
-  \fi
-}
-
-% Left-hand layout: mirror of the default.
-\newcommand*\OU@drawleftlogo{%
-  \node[below left,inner sep=0pt]
-    at ($(current page.north west)+(0.75,-0.38)$)
-    {\enlogonotext{\OU@frameaccent}};%
-}
-
-\newcommand*\OU@drawleftfooterbar{%
-  \fill[\OU@frameaccent]
-    ($(current page.south west)+(0,0.93)$)
-    --++ (5.3,0)
-    arc[start angle=90,end angle=-90,radius=0.29]
-    --++ (-5.3,0)
-    -- cycle;%
-}
-
 \newcommand*\OU@drawleftfootertext{%
   \ifOU@footertitle
     \node[
@@ -543,23 +588,36 @@
     };%
 }
 
-\newcommand*\OU@drawleftfootline{%
-  \OU@drawrightlogo
+\newcommand*\OU@drawrightfooter{%
   \ifOU@nofootline
-    % Keep only the logo.
+    % Footer deliberately suppressed; logo is handled independently.
+  \else
+    \OU@drawrightfooterbar
+    \OU@drawrightfootertext
+  \fi
+}
+
+\newcommand*\OU@drawleftfooter{%
+  \ifOU@nofootline
+    % Footer deliberately suppressed; logo is handled independently.
   \else
     \OU@drawleftfooterbar
     \OU@drawleftfootertext
   \fi
 }
 
+\newcommand*\OU@drawfooter{%
+  \ifdefstring{\OU@footlineside}{left}{%
+    \OU@drawleftfooter
+  }{%
+    \OU@drawrightfooter
+  }%
+}
+
 \setbeamertemplate{footline}{%
   \begin{tikzpicture}[overlay,remember picture]
-    \ifOU@leftfootline
-      \OU@drawleftfootline
-    \else
-      \OU@drawrightfootline
-    \fi
+    \OU@drawlogo
+    \OU@drawfooter
   \end{tikzpicture}%
 }
 

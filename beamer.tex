@@ -1,6 +1,4 @@
 % !TEX program = xelatex
-% Compile with XeLaTeX or LuaLaTeX when using font=arial or font=calibri.
-
 \documentclass[10pt,aspectratio=169]{beamer}
 
 \usetheme[
@@ -12,15 +10,17 @@
   footertitle=true
 ]{OU}
 
-% ------------------------------------------------------------
-% OU theme options
-% ------------------------------------------------------------
+% These options are passed to \usetheme[...]{OU}.
+%
 % lang=en|nl (default=en)
 %   Selects English or Dutch labels and institute name.
 %
-% font=arial|calibri|carlito|none (default=calibri)
-%   Selects the main presentation font. Use font=none if the document
-%   should not let the theme load or change fonts.
+% font=calibri|carlito|arial|none (default=calibri)
+%   Selects the main presentation font.
+%   calibri : uses Calibri if available, with Carlito as fallback.
+%   carlito : uses Carlito directly.
+%   arial   : uses Arial if available, with Carlito as fallback.
+%   none    : does not let the theme load or change fonts.
 %
 % elevatedtitles=true|false (default=false)
 %   true  : moves frame titles closer to the top of the slide.
@@ -38,16 +38,57 @@
 %   true  : shows the short title in the footer.
 %   false : hides the short title in the footer.
 %
-% Per-frame colour option:
+% Short title used in the footer:
+%   \title[Short footer title]{Full presentation title}
+%
+% Optional footer-title override:
+%   \OUfootertitle{Different footer title}
+%
+% ------------------------------------------------------------
+% OU per-frame options
+% These options are passed to individual frames:
+%
 %   \begin{frame}[framecolor=OUAccent3]{Title}
-%   This changes the title, logo mark, and footer accent colour for one frame.
+%   ...
+%   \end{frame}
 %
+% framecolor=<colour> (default=OUPrimary)
+%   Changes the accent colour for one frame. The accent colour is used for
+%   the logo mark and footer bar. It resets automatically on the next frame.
 %
-% Per-frame layout options:
-%   rightfootline : moves the logo mark and footer content to the right side of the frame (default).
-%   leftfootline  : moves the footer content to the left side of the frame.
-%   nofootline    : removes the footer content from the frame.
-
+% Footline placement:
+%   rightfootline : places the footer bar, page number, and optional short
+%                   title on the right side of the frame (default).
+%   leftfootline  : places the footer bar, page number, and optional short
+%                   title on the left side of the frame.
+%   nofootline    : removes the footer bar, page number, and optional short
+%                   title. The logo is not affected.
+%
+% Logo placement:
+%   leftlogo      : places the small OU logo mark on the left side of the
+%                   title area (default).
+%   rightlogo     : places the small OU logo mark on the right side of the
+%                   title area.
+%   nologo        : removes the logo mark. The footline is not affected.
+%
+% Default frame layout:
+%   rightfootline,leftlogo
+%
+% Examples:
+%   \begin{frame}[leftfootline]{Title}
+%   \begin{frame}[rightlogo]{Title}
+%   \begin{frame}[leftfootline,rightlogo]{Title}
+%   \begin{frame}[nofootline]{Title}
+%   \begin{frame}[nologo]{Title}
+%   \begin{frame}[nofootline,nologo]{Title}
+%   \begin{frame}[framecolor=OUAccent3,leftfootline,rightlogo]{Title}
+%
+% Standard Beamer options such as t, plain, fragile, and noframenumbering
+% can still be used together with the OU per-frame options.
+%
+% ------------------------------------------------------------
+% OU colours and custom environments
+% ------------------------------------------------------------
 % Defined OU colours:
 %   OUPrimary, OUAccent2, OUAccent3, OUwarmgrey, OUgreenish,
 %   OUlightblue, OUblack, OUwhite
@@ -69,17 +110,19 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usepackage{siunitx}
 
+% Helpful package to manage units and quantities consistently
+\usepackage{siunitx}
 \sisetup{
   per-mode=reciprocal,
-  detect-all
+  detect-all,
+  number-mode=text
 }
 
 % ------------------------------------------------------------
 % Title information
 % ------------------------------------------------------------
-\title{OU Beamer Template}
+\title[OU Beamer Template]{OU Beamer Template}
 \subtitle{A short example presentation}
 \author{Your Name}
 \date{\today}
@@ -96,6 +139,7 @@
 % ------------------------------------------------------------
 % Custom outline slide
 % ------------------------------------------------------------
+\section{Outline}
 \begin{frame}[t]{Outline}
 \setbeamercovered{dynamic}
 
@@ -113,7 +157,8 @@
 \end{frame}
 
 % ------------------------------------------------------------
-\section{Motivation}
+\section{Formatting}
+\subsection{Text, figure, and table placement}
 \begin{frame}[t]{Single-column text}
 This is a normal text slide. Use short paragraphs and avoid overloading the slide with detailed prose. Inline mathematics such as \(E=mc^2\) and quantities such as \qty{3.5}{MW} are typeset consistently.
 
@@ -122,7 +167,6 @@ The OU theme defines the title area, logo mark, and footer automatically. Most s
 \end{frame}
 
 % ------------------------------------------------------------
-\section{Method}
 \begin{frame}[t]{Columns and short lists}
 \begin{columns}[T,onlytextwidth]
   \column{0.52\textwidth}
@@ -145,6 +189,7 @@ The OU theme defines the title area, logo mark, and footer automatically. Most s
 \end{frame}
 
 % ------------------------------------------------------------
+\subsection{Equations and units}
 \begin{frame}[t]{Equations and units}
 A short derivation is often clearer than a dense list of equations. The example below uses \texttt{siunitx} for units.
 
@@ -162,7 +207,6 @@ For example, with \(F=\qty{50}{kN}\), \(r=\qty{2}{m}\), and \(\omega=\qty{6}{rad
 \end{frame}
 
 % ------------------------------------------------------------
-\section{Results}
 \begin{frame}[t]{Compact table}
 \begin{table}
 \centering
@@ -181,6 +225,8 @@ Scenario B & \qty{3.1}{GW} & strong increase \\
 \end{frame}
 
 % ------------------------------------------------------------
+\section{Beamer properties}
+\subsection{Frame colour}
 \begin{frame}[framecolor=OUAccent3]{Changing the frame colour}
 This frame uses the per-frame option \texttt{framecolor=OUAccent3}. The accent colour returns to the default on the next frame.
 
@@ -199,30 +245,76 @@ Blocks can be used for definitions, assumptions, or short conclusions.
 \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame}[t,leftfootline]{Using leftfootline}
-This frame uses the \texttt{leftfootline} option to move the footer content to the left side of the frame.
+\subsection{Footline and logo placement}
+\begin{frame}[t]{Default layout: \texttt{rightfootline,leftlogo}}
+By default, the footer is placed on the right side of the frame and the OU logo mark is placed on the left side of the title area.
+
+This corresponds to the implicit frame options \texttt{rightfootline,leftlogo}.
 \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame}[t,nofootline]{Using no footline}
-This frame uses the \texttt{nofootline} option to remove the footer content from the frame.
+\begin{frame}[t,leftfootline]{Using \texttt{leftfootline}}
+This frame uses the \texttt{leftfootline} option to move only the footer content to the left side of the frame.
+
+The logo remains on the default left side, because footer placement and logo placement are controlled independently.
 \end{frame}
 
 % ------------------------------------------------------------
-\section{Conclusion}
-\begin{frame}[t]{Take-away message}
-A useful final slide states the main result, the main limitation, and the next step. Keep this slide especially concise.
+\begin{frame}[t,rightlogo]{Using \texttt{rightlogo}}
+This frame uses the \texttt{rightlogo} option to move only the logo mark to the right side of the title area.
+
+The footer remains on the default right side, because logo placement and footer placement are controlled independently.
 \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame}
-\centering
-\LARGE Questions?
+\begin{frame}[t,leftfootline,rightlogo]{Combining \texttt{leftfootline} and \texttt{rightlogo}}
+This frame uses \texttt{leftfootline,rightlogo}. The footer is placed on the left side, while the logo mark is placed on the right side.
+
+This is useful when a figure or a diagram needs more space in one of the title-area corners.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}[t,nofootline]{Using \texttt{nofootline}}
+This frame uses the \texttt{nofootline} option. The footer bar, page number, and optional short title are removed.
+
+The logo mark remains visible, because \texttt{nofootline} does not affect the logo.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}[t,nologo]{Using \texttt{nologo}}
+This frame uses the \texttt{nologo} option. The logo mark is removed from the title area.
+
+The footer remains visible, because \texttt{nologo} does not affect the footline.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}[t,nofootline,nologo]{Using \texttt{nofootline} and \texttt{nologo}}
+This frame combines \texttt{nofootline,nologo}. Both the footer and the logo mark are removed.
+
+This can be useful for full-frame figures, diagrams, or interlude slides.
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}[t,framecolor=OUAccent3,leftfootline,rightlogo]{Combining layout and colour}
+This frame combines several OU per-frame options:
+
+\medskip
+\texttt{framecolor=OUAccent3,leftfootline,rightlogo}
+
+\medskip
+The accent colour, footer placement, and logo placement are all local to this frame.
+\end{frame}
+
+% ------------------------------------------------------------
+\section{Remarks}
+\begin{frame}[t]{Do you need a particular feature?}
+  \begin{quote}
+    If a particular feature is missing from the template, write to leonardo.rydin.gorjao@ou.nl.
+  \end{quote}
 \end{frame}
 
 % ------------------------------------------------------------
 \appendix
-\section{Backup}
 \begin{frame}[t]{Backup slide}
 Backup slides can contain additional derivations, sensitivity analyses, or supporting figures.
 \end{frame}
