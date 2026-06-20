@@ -15,7 +15,7 @@
 % lang=en|nl (default=en)
 %   Selects English or Dutch labels and institute name.
 %
-% font=calibri|carlito|arial|none (default=calibri)
+% font=calibri|carlito|arial|none (default=arial)
 %   Selects the main presentation font.
 %   calibri : uses Calibri if available, with Carlito as fallback.
 %   carlito : uses Carlito directly.
@@ -62,14 +62,18 @@
 %   leftfootline  : places the footer bar, page number, and optional short
 %                   title on the left side of the frame.
 %   nofootline    : removes the footer bar, page number, and optional short
-%                   title. The logo is not affected.
+%                   title. The logo layer is not affected.
 %
 % Logo placement:
 %   leftlogo      : places the small OU logo mark on the left side of the
-%                   title area (default).
+%                   title area (default). Additional frame logos are placed
+%                   next to it automatically.
 %   rightlogo     : places the small OU logo mark on the right side of the
-%                   title area.
-%   nologo        : removes the logo mark. The footline is not affected.
+%                   title area. Additional frame logos are placed next to it
+%                   automatically.
+%   nologo        : removes the regular-frame logo layer, including the small
+%                   OU logo mark and any additional frame logos. The footline
+%                   is not affected.
 %
 % Default frame layout:
 %   rightfootline,leftlogo
@@ -85,6 +89,51 @@
 %
 % Standard Beamer options such as t, plain, fragile, and noframenumbering
 % can still be used together with the OU per-frame options.
+%
+% ------------------------------------------------------------
+% OU additional logos
+% ------------------------------------------------------------
+% Additional logos can be added to the title page and to regular frames by
+% giving only the logo filename. The optional argument is passed directly to
+% \includegraphics, so standard graphic sizing options can be used.
+%
+% Add logos to the title page:
+%   \OUaddtitlelogo{partner-logo.pdf}
+%   \OUaddtitlelogo[height=0.65cm]{partner-logo.pdf}
+%   \OUaddtitlelogo[width=2.0cm]{partner-logo.pdf}
+%
+% Add logos to regular frames:
+%   \OUaddframelogo{partner-logo.pdf}
+%   \OUaddframelogo[height=0.38cm]{partner-logo.pdf}
+%   \OUaddframelogo[width=1.2cm]{partner-logo.pdf}
+%
+% Multiple logos can be added by repeating the commands:
+%   \OUaddtitlelogo[height=0.65cm]{logo-a.pdf}
+%   \OUaddtitlelogo[height=0.65cm]{logo-b.pdf}
+%
+%   \OUaddframelogo[height=0.38cm]{logo-a.pdf}
+%   \OUaddframelogo[height=0.38cm]{logo-b.pdf}
+%
+% Title-page logos are placed automatically in the upper-right corner.
+% Regular-frame logos are placed automatically next to the OU logo mark:
+%   - with leftlogo, additional logos are placed to the right of the OU mark;
+%   - with rightlogo, additional logos are placed to the left of the OU mark.
+%
+% Logo spacing can be adjusted without TikZ:
+%   \setlength{\OUtitlelogogap}{0.6cm}
+%   \setlength{\OUframelogogap}{0.45cm}
+%
+% Clear all additional logos:
+%   \OUcleartitlelogos
+%   \OUclearframelogos
+%
+% Advanced manual logo hooks are also available for custom TikZ placement:
+%   \OUtitlelogos{<raw TikZ code>}
+%   \OUframelogos{<raw TikZ code>}
+%
+% These advanced hooks replace the automatically generated additional-logo
+% layer. They are intended only for layouts that cannot be expressed through
+% the filename-based commands above.
 %
 % ------------------------------------------------------------
 % OU colours and custom environments

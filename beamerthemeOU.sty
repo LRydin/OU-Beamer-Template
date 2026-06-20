@@ -6,11 +6,8 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{beamerthemeOU}[2026/06/12 v0.0.4 OU Beamer Theme Open Universiteit]
+\ProvidesPackage{beamerthemeOU}[2026/06/20 v0.1.0 OU Beamer Theme Open Universiteit]
 
-% --------------------------------------------------------------------------
-% Package purpose
-% --------------------------------------------------------------------------
 % This file defines a Beamer presentation theme for the Open Universiteit.
 % It provides:
 %   - OU colour definitions and hyperlink styling;
@@ -20,7 +17,8 @@
 %   - footer short-title display enabled by default through footertitle=true;
 %   - a per-frame accent-colour option: [framecolor=<xcolor name>];
 %   - a custom outline list environment: ououtline;
-%   - embedded OU logo drawings at the end of the file.
+%   - embedded OU logo drawings at the end of the file;
+%   - configurable additional logo hooks for title and regular frames.
 %
 % Typical use in a presentation:
 %
@@ -38,7 +36,6 @@
 % pdfLaTeX, the theme falls back to Helvetica when font is not set to none.
 %
 % --------------------------------------------------------------------------
-
 
 \makeatletter
 
@@ -61,8 +58,7 @@
 \usetikzlibrary{intersections}
 \usetikzlibrary{positioning}
 
-% --------------------------------------------------------------------------
-% 2. Theme options
+% Theme options
 % --------------------------------------------------------------------------
 % Options are passed by Beamer through \usetheme[...]{OU}; internally this is
 % loaded as a package option list, which kvoptions processes here.
@@ -103,8 +99,7 @@
 
 \ProcessKeyvalOptions*
 
-% --------------------------------------------------------------------------
-% 3. Language-dependent strings
+% Language-dependent strings
 % --------------------------------------------------------------------------
 % These strings are used for babel, the default institute, and the page label
 % in the footline. Unknown language options fall back to English.
@@ -130,8 +125,7 @@
 \expandafter\RequirePackage\expandafter[\OU@babelname]{babel}
 \institute{\OU@InstituteName}
 
-% --------------------------------------------------------------------------
-% 4. OU colour palette
+% OU colour palette
 % --------------------------------------------------------------------------
 % OUPrimary is the main red accent used for titles, logos, and the footline.
 % The remaining colours are secondary accents for blocks, lists, and custom
@@ -148,8 +142,7 @@
 \definecolor{OUgreenish}{HTML}{A1B7AC}
 \definecolor{OUlightblue}{HTML}{ACC5E0}
 
-% --------------------------------------------------------------------------
-% 5. Hyperlinks
+% Hyperlinks
 % --------------------------------------------------------------------------
 % Hyperlinks use the primary OU accent colour. The URL font is kept consistent
 % with surrounding text.
@@ -166,8 +159,7 @@
 \urlstyle{same}
 \DeclareUrlCommand\url{\color{OUPrimary}}
 
-% --------------------------------------------------------------------------
-% 6. Font setup
+% Font setup
 % --------------------------------------------------------------------------
 % Under XeLaTeX/LuaLaTeX, fontspec is used if font is not set to none.
 % The default is Calibri, with Carlito as an open fallback.
@@ -235,8 +227,7 @@
   }%
 \fi
 
-% --------------------------------------------------------------------------
-% 7. Layout constants
+% Layout constants
 % --------------------------------------------------------------------------
 % \OU@frametitleheight controls the vertical height of the frame-title area.
 % The name "elevatedtitles" is kept as a user-facing option for compatibility.
@@ -248,8 +239,7 @@
 
 \setlength{\abovecaptionskip}{5pt plus 3pt minus 2pt}
 
-% --------------------------------------------------------------------------
-% 8. Core Beamer colours, fonts, and spacing
+% Core Beamer colours, fonts, and spacing
 % --------------------------------------------------------------------------
 
 \mode<presentation>
@@ -306,8 +296,7 @@
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{caption}[numbered]
 
-% --------------------------------------------------------------------------
-% 9. Per-frame accent colour, footer, and logo options
+% Per-frame accent colour, footer, and logo options
 % --------------------------------------------------------------------------
 % The frame accent controls the OU logo colour and the rounded footer shape.
 %
@@ -445,8 +434,7 @@
   \end{beamercolorbox}%
 }
 
-% --------------------------------------------------------------------------
-% 11. Footline and logo template
+% Footline and logo template
 % --------------------------------------------------------------------------
 % The template draws two independent layers:
 %   - the upper OU logo, controlled by leftlogo/rightlogo/nologo;
@@ -486,6 +474,121 @@
   \endgroup
 }
 
+% --- Configurable extra logo hooks -----------------------------------------
+% Additional title-page and regular-frame logos can be added with simple
+% filename-based commands. The optional argument is passed directly to
+% \includegraphics, so common sizing choices are:
+%
+%   \OUaddtitlelogo[height=0.65cm]{partner-logo.pdf}
+%   \OUaddframelogo[height=0.38cm]{partner-logo.pdf}
+%
+% Multiple logos are placed automatically in a horizontal row. On the title
+% page, the row is placed in the upper-right corner. On regular frames, the
+% row is placed next to the standard OU icon: to the right of a left-side OU
+% icon and to the left of a right-side OU icon.
+%
+% Advanced users can still inject raw TikZ code with \OUtitlelogos{...} and
+% \OUframelogos{...}, or add explicit TikZ nodes with \OUaddtitlelogonode and
+% \OUaddframelogonode.
+
+\newcommand*\OU@titlelogocode{}
+\newcommand*\OU@framelogocode{}
+\newcommand*\OU@titlelogorow{}
+\newcommand*\OU@framelogorow{}
+
+\newlength{\OUtitlelogogap}
+\newlength{\OUframelogogap}
+\setlength{\OUtitlelogogap}{0.45cm}
+\setlength{\OUframelogogap}{0.35cm}
+
+\newcommand*\OUtitlelogos[1]{%
+  \gdef\OU@titlelogocode{#1}%
+}
+
+\newcommand*\OUframelogos[1]{%
+  \gdef\OU@framelogocode{#1}%
+}
+
+\newcommand*\OUcleartitlelogos{%
+  \global\let\OU@titlelogocode\@empty
+  \global\let\OU@titlelogorow\@empty
+}
+
+\newcommand*\OUclearframelogos{%
+  \global\let\OU@framelogocode\@empty
+  \global\let\OU@framelogorow\@empty
+}
+
+\newcommand*\OU@appendtitlelogofile[2]{%
+  \ifx\OU@titlelogorow\@empty
+    \gappto\OU@titlelogorow{\includegraphics[#1]{#2}}%
+  \else
+    \gappto\OU@titlelogorow{\hspace{\OUtitlelogogap}\includegraphics[#1]{#2}}%
+  \fi
+}
+
+\newcommand*\OU@appendframelogofile[2]{%
+  \ifx\OU@framelogorow\@empty
+    \gappto\OU@framelogorow{\includegraphics[#1]{#2}}%
+  \else
+    \gappto\OU@framelogorow{\hspace{\OUframelogogap}\includegraphics[#1]{#2}}%
+  \fi
+}
+
+% User-level commands. The optional argument is the normal \includegraphics
+% option list. Default sizes are chosen to match the OU theme layout.
+\newcommand*\OUaddtitlelogo[2][height=0.65cm]{%
+  \OU@appendtitlelogofile{#1}{#2}%
+}
+
+\newcommand*\OUaddframelogo[2][height=0.38cm]{%
+  \OU@appendframelogofile{#1}{#2}%
+}
+
+% Advanced node-level commands, retained for cases where exact TikZ placement
+% is required.
+\newcommand*\OUaddtitlelogonode[3][]{%
+  \gappto\OU@titlelogocode{%
+    \node[inner sep=0pt,#1] at #2 {#3};%
+  }%
+}
+
+\newcommand*\OUaddframelogonode[3][]{%
+  \gappto\OU@framelogocode{%
+    \node[inner sep=0pt,#1] at #2 {#3};%
+  }%
+}
+
+\newcommand*\OU@drawtitlelogorow{%
+  \ifx\OU@titlelogorow\@empty
+    % No extra title-page logo files supplied.
+  \else
+    \node[anchor=north east,inner sep=0pt]
+      at ($(current page.north east)+(-0.92,-0.8)$)
+      {\OU@titlelogorow};%
+  \fi
+}
+
+\newcommand*\OU@drawleftframelogorow{%
+  \ifx\OU@framelogorow\@empty
+    % No extra regular-frame logo files supplied.
+  \else
+    \node[anchor=north west,inner sep=0pt]
+      at ($(current page.north west)+(1.02,-0.38)$)
+      {\OU@framelogorow};%
+  \fi
+}
+
+\newcommand*\OU@drawrightframelogorow{%
+  \ifx\OU@framelogorow\@empty
+    % No extra regular-frame logo files supplied.
+  \else
+    \node[anchor=north east,inner sep=0pt]
+      at ($(current page.north east)+(-1.02,-0.38)$)
+      {\OU@framelogorow};%
+  \fi
+}
+
 % --- Logo layer ------------------------------------------------------------
 
 \newcommand*\OU@drawleftlogo{%
@@ -502,13 +605,16 @@
 
 \newcommand*\OU@drawlogo{%
   \ifOU@nologo
-    % Logo deliberately suppressed.
+    % Logo layer deliberately suppressed.
   \else
     \ifdefstring{\OU@logoside}{left}{%
       \OU@drawleftlogo
+      \OU@drawleftframelogorow
     }{%
       \OU@drawrightlogo
+      \OU@drawrightframelogorow
     }%
+    \OU@framelogocode
   \fi
 }
 
@@ -626,8 +732,7 @@
 % does not shift when toggling the footer visibility on individual frames.
 \addtobeamertemplate{footline}{}{\vspace{0.75cm}}
 
-% --------------------------------------------------------------------------
-% 12. Title page template
+% Title page template
 % --------------------------------------------------------------------------
 % The title page uses the primary OU colour, independent of per-frame accent
 % changes. Use \begin{frame}[plain,noframenumbering]\titlepage\end{frame}.
@@ -640,6 +745,9 @@
     \node[below right,inner sep=0pt]
       at ($(current page.north west)+(0.92,-0.8)$)
       {\enlogo{OUPrimary}};
+
+    \OU@drawtitlelogorow
+    \OU@titlelogocode
 
     \fill[OUPrimary]
       ($(current page.north west)+(0,-3.5)$)
@@ -708,20 +816,19 @@
       \insertinstitute\par
     };
 
+
   \end{tikzpicture}%
 }
 
 \setbeamertemplate{title page}[OU]
 
-% --------------------------------------------------------------------------
-% 13. Footnotes
+% Footnotes
 % --------------------------------------------------------------------------
 % The default footnote rule is removed for a cleaner Beamer layout.
 
 \renewcommand\footnoterule{}
 
-% --------------------------------------------------------------------------
-% 14. OU outline environment
+% OU outline environment
 % --------------------------------------------------------------------------
 % A custom numbered outline list with:
 %   - red/accent-coloured numbers;
@@ -902,8 +1009,7 @@
 
 \makeatother
 
-% --------------------------------------------------------------------------
-% 15. Logo commands
+% Logo commands
 % --------------------------------------------------------------------------
 % The logo commands are deliberately kept at the end of the file because they
 % consist of long TikZ paths.
