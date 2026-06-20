@@ -76,4 +76,4 @@ This template is built around the `OU` Beamer theme and supports the following o
 - `v0.0.2`: added footer title support through the `footertitle` theme option and the `\title[Short footer title]{...}` mechanism.
 - `v0.0.3`: added the `leftfootline` and `nofootline` per-frame layout options.
 - `v0.0.4`: separates footline and logo placement: `leftfootline`, `rightfootline`, `nofootline`, `leftlogo`, `rightlogo`, and `nologo`.
-
+- `v0.1.0`: `OUaddtitlelogo` and `OUaddframelogo` added. Overall functional.
