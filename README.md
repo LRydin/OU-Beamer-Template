@@ -34,6 +34,7 @@ This template is built around the `OU` Beamer theme and supports the following o
 - `footertitle=true|false` shows or hides the short title in the footer.
 - `\title[Short footer title]{Full presentation title}` sets the short footer title.
 - `\OUfootertitle{Different footer title}` overrides the footer title explicitly.
+- `\OUaddtitlelogo` and `\OUaddframelogo` add logos from other institutions and partners.
 
 ### Per-frame options
 
