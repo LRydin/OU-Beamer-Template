@@ -6,7 +6,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{beamerthemeOU}[2026/06/20 v0.1.0 OU Beamer Theme Open Universiteit]
+\ProvidesPackage{beamerthemeOU}[2026/10/29 v0.1.1 OU Beamer Theme Open Universiteit]
 
 % This file defines a Beamer presentation theme for the Open Universiteit.
 % It provides:
@@ -29,7 +29,8 @@
 %     elevatedtitles=false,
 %     serifmath=true,
 %     tightlists=true,
-%     footertitle=true
+%     footertitle=true,
+%     sourcefontsize=small
 %   ]{OU}
 %
 % Compile with XeLaTeX or LuaLaTeX for Arial/Calibri system fonts. With
@@ -49,7 +50,9 @@
 \RequirePackage{kvoptions}
 \RequirePackage[dvipsnames]{xcolor}
 \RequirePackage{graphicx}
+\RequirePackage{adjustbox}
 \RequirePackage{etoolbox}
+\RequirePackage{xparse}
 \RequirePackage{ifxetex}
 \RequirePackage{ifluatex}
 
@@ -87,6 +90,10 @@
 % lang:
 %   en : English labels
 %   nl : Dutch labels
+%
+% sourcefontsize:
+%   LaTeX font-size name used for entries printed by \printsources
+%   (default: small; e.g. footnotesize, scriptsize, normalsize)
 
 \SetupKeyvalOptions{family=OU,prefix=OU@}
 
@@ -96,8 +103,27 @@
 \DeclareBoolOption[true]{tightlists}
 \DeclareBoolOption[true]{footertitle}
 \DeclareStringOption[en]{lang}
+\DeclareStringOption[small]{sourcefontsize}
 
 \ProcessKeyvalOptions*
+
+% Restrict the bibliography option to standard LaTeX font-size commands.
+\newcommand*\OU@sourcefontsize@tiny{\tiny}
+\newcommand*\OU@sourcefontsize@scriptsize{\scriptsize}
+\newcommand*\OU@sourcefontsize@footnotesize{\footnotesize}
+\newcommand*\OU@sourcefontsize@small{\small}
+\newcommand*\OU@sourcefontsize@normalsize{\normalsize}
+\newcommand*\OU@sourcefontsize@large{\large}
+\newcommand*\OU@sourcefontsize@Large{\Large}
+\newcommand*\OU@sourcefontsize@LARGE{\LARGE}
+\newcommand*\OU@sourcefontsize@huge{\huge}
+\newcommand*\OU@sourcefontsize@Huge{\Huge}
+\newcommand*\OU@applysourcefontsize{%
+  \@ifundefined{OU@sourcefontsize@\OU@sourcefontsize}{%
+    \PackageWarning{beamerthemeOU}{Unknown sourcefontsize '\OU@sourcefontsize'. Using small}%
+    \small
+  }{\csname OU@sourcefontsize@\OU@sourcefontsize\endcsname}%
+}
 
 % Language-dependent strings
 % --------------------------------------------------------------------------
@@ -157,7 +183,7 @@
 }
 
 \urlstyle{same}
-\DeclareUrlCommand\url{\color{OUPrimary}}
+% Keep hyperref's \url definition so URLs remain clickable.
 
 % Font setup
 % --------------------------------------------------------------------------
@@ -720,17 +746,102 @@
   }%
 }
 
+% --- Per-frame sources and optional presentation bibliography -------------
+% \source{full citation} prints the citation opposite the footer bar and
+% registers it for \printsources.  An optional short form keeps dense slide
+% footers legible: \source[short credit]{full bibliography entry}.
+% Each frame starts with an empty local display list; the bibliography is
+% global and deduplicated by the exact citation token list. Numbers follow
+% first-use order and remain stable when an entry is cited again.
+\newcommand*\OU@framesources{}
+% Rebuild credits for each overlay, including command-form and replayed frames.
+% Auto-break continuations reuse the already typeset body and keep its credits.
+\AtBeginDocument{%
+  % Reset after Beamer ships out the preceding overlay, before reading content.
+  \patchcmd{\beamer@frameslide}{\beamer@framenotesbegin}{%
+    \ifnum\beamer@autobreakcount<2\relax
+      \global\let\OU@framesources\@empty
+    \fi
+    \beamer@framenotesbegin
+  }{}{\PackageError{beamerthemeOU}{Could not install source reset hook}%
+    {The installed Beamer version is incompatible with OU source credits.}}%
+}
+\newcommand*\OUsourcesname{Sources}
+\ifdefstring{\OU@lang}{nl}{\renewcommand*\OUsourcesname{Bronnen}}{}
+% Allow several compact citations to wrap beside the banner.
+% Dense slide content may need extra free space above the footer.
+\newlength{\OUsourcemaxheight}
+\setlength{\OUsourcemaxheight}{0.90cm}
+\newlength{\OUsourcewidth}
+\setlength{\OUsourcewidth}{\dimexpr\paperwidth-7cm\relax}
+\newcommand*\OU@sourceentry[2]{%
+  \noindent\textcolor{\OU@frameaccent}{[\OUPrintSourceNumber{#1}]}%
+  \hspace{.35em}#2\par%
+}
+\newcommand*\OU@addframesource[2]{%
+  \g@addto@macro\OU@framesources{\OU@sourceentry{#1}{#2}}%
+}
+\ExplSyntaxOn
+\seq_new:N \g_ou_bibliography_seq
+\cs_new_protected:Npn \OURecordSource #1
+  {\seq_if_in:NnF \g_ou_bibliography_seq {#1}
+     {\seq_gput_right:Nn \g_ou_bibliography_seq {#1}}}
+% The same exact-token comparison used to deduplicate gives each entry its
+% position in the bibliography sequence. Resolve at typesetting time because
+% Beamer can ship an overlay after the next one has started.
+\cs_new_protected:Npn \OUPrintSourceNumber #1
+  {\seq_map_indexed_inline:Nn \g_ou_bibliography_seq
+     {\tl_if_eq:nnT {##2} {#1} {##1 \seq_map_break:}}}
+\cs_new_protected:Npn \OUPrintSources
+  {
+    \seq_if_empty:NF \g_ou_bibliography_seq
+      {
+        \begin{frame}[allowframebreaks]{\OUsourcesname}
+        \OU@applysourcefontsize
+        \begin{enumerate}
+          \seq_map_indexed_inline:Nn \g_ou_bibliography_seq
+            {\item[{[##1]}] ##2}
+        \end{enumerate}
+        \end{frame}
+      }
+  }
+\ExplSyntaxOff
+\NewDocumentCommand{\source}{o m}{%
+  \OURecordSource{#2}%
+  \IfNoValueTF{#1}{\OU@addframesource{#2}{#2}}%
+    {\OU@addframesource{#2}{#1}}%
+}
+\NewDocumentCommand{\printsources}{}{\OUPrintSources}
+\newcommand*\OU@drawsources{%
+  \ifx\OU@framesources\@empty\else
+    \ifdefstring{\OU@footlineside}{left}{%
+      \def\OU@sourceanchor{south east}%
+      \coordinate (OU@sourcepoint) at ($(current page.south east)+(-0.75,0.40)$);%
+    }{%
+      \def\OU@sourceanchor{south west}%
+      \coordinate (OU@sourcepoint) at ($(current page.south west)+(0.75,0.40)$);%
+    }%
+    \node[anchor=\OU@sourceanchor,inner sep=0pt,outer sep=0pt,align=left]
+      at (OU@sourcepoint)
+      {\adjustbox{max height=\OUsourcemaxheight}{%
+        \parbox[b]{\OUsourcewidth}{%
+          \fontsize{5pt}{5.5pt}\selectfont\color{OUblack}%
+          \setlength{\parskip}{0pt}\raggedright\OU@framesources\par}}};%
+  \fi
+}
+
 \setbeamertemplate{footline}{%
   \begin{tikzpicture}[overlay,remember picture]
     \OU@drawlogo
     \OU@drawfooter
+    \OU@drawsources
   \end{tikzpicture}%
 }
 
 % Reserve vertical room for the custom footline.
 % The space is intentionally kept also for [nofootline], so the slide content
 % does not shift when toggling the footer visibility on individual frames.
-\addtobeamertemplate{footline}{}{\vspace{0.75cm}}
+\addtobeamertemplate{footline}{}{\vspace{1.00cm}}
 
 % Title page template
 % --------------------------------------------------------------------------
